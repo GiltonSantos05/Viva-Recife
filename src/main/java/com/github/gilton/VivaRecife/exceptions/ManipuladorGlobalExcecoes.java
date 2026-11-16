@@ -23,13 +23,29 @@ public class ManipuladorGlobalExcecoes {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErroPadrao> tratarArgumentoInvalido(IllegalArgumentException ex, HttpServletRequest requisicao) {
+        ErroPadrao erro = new ErroPadrao(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Requisição inválida",
+                ex.getMessage(),
+                requisicao.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErroPadrao> tratarExcecaoGenerica(Exception ex, HttpServletRequest requisicao) {
+        String mensagem = ex.getMessage() != null && !ex.getMessage().isBlank()
+                ? ex.getMessage()
+                : "Ocorreu um erro inesperado. Tente novamente mais tarde.";
+
         ErroPadrao erro = new ErroPadrao(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Erro interno do servidor",
-                "Ocorreu um erro inesperado. Tente novamente mais tarde.",
+                mensagem,
                 requisicao.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);

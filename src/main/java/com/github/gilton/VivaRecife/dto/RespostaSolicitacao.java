@@ -1,12 +1,23 @@
 package com.github.gilton.VivaRecife.dto;
 
+import com.github.gilton.VivaRecife.entity.StatusSolicitacao;
+import com.github.gilton.VivaRecife.entity.TipoProblema;
+
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record RespostaSolicitacao(
         UUID id,
-        String tituloSolicitacao,
-        String tituloProblema,
-        String descricao,
-        String localizacao
+        UUID comunicacaoId,
+        String titulo,
+        String localizacao,
+        Double latitude,
+        Double longitude,
+        String detalhamentoProblema,
+        TipoProblema tipoProblema,
+        String caminhoFoto,
+        StatusSolicitacao status,
+        LocalDateTime criadoEm,
+        LocalDateTime atualizadoEm
 ) {
 }

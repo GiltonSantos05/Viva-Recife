@@ -1,34 +1,42 @@
 package com.github.gilton.VivaRecife.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 public class Solicitacao {
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+
+    @OneToOne
+    @JoinColumn(name = "comunicacao_id", nullable = false, unique = true)
+    private Comunicacao comunicacao;
+
+    @Enumerated(EnumType.STRING)
+    private StatusSolicitacao status;
+
+    private final LocalDateTime criadoEm = LocalDateTime.now();
+
+    private LocalDateTime atualizadoEm = LocalDateTime.now();
 
     public Solicitacao() {
     }
 
-    public Solicitacao(String tituloSolicitacao, String tituloProblema, String descricao, String localizacao) {
-        this.tituloSolicitacao = tituloSolicitacao;
-        this.tituloProblema = tituloProblema;
-        this.descricao = descricao;
-        this.localizacao = localizacao;
+    public Solicitacao(Comunicacao comunicacao, StatusSolicitacao status) {
+        this.comunicacao = comunicacao;
+        this.status = status;
     }
-
-    private String tituloSolicitacao;
-    private String tituloProblema;
-    private String descricao;
-    private String localizacao;
-
-    private final LocalDateTime criadoEm = LocalDateTime.now();
 
     public UUID getId() {
         return id;
@@ -38,35 +46,32 @@ public class Solicitacao {
         this.id = id;
     }
 
-    public String getTituloSolicitacao() {
-        return tituloSolicitacao;
+    public Comunicacao getComunicacao() {
+        return comunicacao;
     }
 
-    public void setTituloSolicitacao(String tituloSolicitacao) {
-        this.tituloSolicitacao = tituloSolicitacao;
+    public void setComunicacao(Comunicacao comunicacao) {
+        this.comunicacao = comunicacao;
     }
 
-    public String getTituloProblema() {
-        return tituloProblema;
+    public StatusSolicitacao getStatus() {
+        return status;
     }
 
-    public void setTituloProblema(String tituloProblema) {
-        this.tituloProblema = tituloProblema;
+    public void setStatus(StatusSolicitacao status) {
+        this.status = status;
+        this.atualizadoEm = LocalDateTime.now();
     }
 
-    public String getDescricao() {
-        return descricao;
+    public LocalDateTime getCriadoEm() {
+        return criadoEm;
     }
 
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
+    public LocalDateTime getAtualizadoEm() {
+        return atualizadoEm;
     }
 
-    public String getLocalizacao() {
-        return localizacao;
-    }
-
-    public void setLocalizacao(String localizacao) {
-        this.localizacao = localizacao;
+    public void setAtualizadoEm(LocalDateTime atualizadoEm) {
+        this.atualizadoEm = atualizadoEm;
     }
 }

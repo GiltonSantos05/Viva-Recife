@@ -1,7 +1,7 @@
 package com.github.gilton.VivaRecife.services;
 
 import com.github.gilton.VivaRecife.dto.RespostaSolicitacao;
-import com.github.gilton.VivaRecife.dto.request.RequisicaoSolicitacao;
+import com.github.gilton.VivaRecife.entity.Comunicacao;
 import com.github.gilton.VivaRecife.entity.Solicitacao;
 import com.github.gilton.VivaRecife.exceptions.ExcecaoSolicitacaoNaoEncontrada;
 import com.github.gilton.VivaRecife.repositories.RepositorioSolicitacao;
@@ -19,17 +19,6 @@ public class ServicoSolicitacao {
         this.repositorioSolicitacao = repositorioSolicitacao;
     }
 
-    public RespostaSolicitacao criarSolicitacao(RequisicaoSolicitacao requisicao) {
-        Solicitacao solicitacao = new Solicitacao(
-                requisicao.tituloSolicitacao(),
-                requisicao.tituloProblema(),
-                requisicao.descricao(),
-                requisicao.localizacao());
-
-        Solicitacao solicitacaoSalva = repositorioSolicitacao.save(solicitacao);
-        return paraResposta(solicitacaoSalva);
-    }
-
     public List<RespostaSolicitacao> buscarTodas() {
         return repositorioSolicitacao.findAll()
                 .stream()
@@ -43,31 +32,21 @@ public class ServicoSolicitacao {
         return paraResposta(solicitacao);
     }
 
-    public RespostaSolicitacao atualizar(UUID id, RequisicaoSolicitacao requisicao) {
-        Solicitacao solicitacao = repositorioSolicitacao.findById(id)
-                .orElseThrow(() -> new ExcecaoSolicitacaoNaoEncontrada(id));
-
-        solicitacao.setTituloSolicitacao(requisicao.tituloSolicitacao());
-        solicitacao.setTituloProblema(requisicao.tituloProblema());
-        solicitacao.setDescricao(requisicao.descricao());
-        solicitacao.setLocalizacao(requisicao.localizacao());
-
-        Solicitacao solicitacaoAtualizada = repositorioSolicitacao.save(solicitacao);
-        return paraResposta(solicitacaoAtualizada);
-    }
-
-    public void excluir(UUID id) {
-        Solicitacao solicitacao = repositorioSolicitacao.findById(id)
-                .orElseThrow(() -> new ExcecaoSolicitacaoNaoEncontrada(id));
-        repositorioSolicitacao.delete(solicitacao);
-    }
-
     private RespostaSolicitacao paraResposta(Solicitacao solicitacao) {
+        Comunicacao comunicacao = solicitacao.getComunicacao();
         return new RespostaSolicitacao(
                 solicitacao.getId(),
-                solicitacao.getTituloSolicitacao(),
-                solicitacao.getTituloProblema(),
-                solicitacao.getDescricao(),
-                solicitacao.getLocalizacao());
+                comunicacao.getId(),
+                comunicacao.getTitulo(),
+                comunicacao.getLocalizacao(),
+                comunicacao.getLatitude(),
+                comunicacao.getLongitude(),
+                comunicacao.getDetalhamentoProblema(),
+                comunicacao.getTipoProblema(),
+                comunicacao.getCaminhoFoto(),
+                solicitacao.getStatus(),
+                solicitacao.getCriadoEm(),
+                solicitacao.getAtualizadoEm()
+        );
     }
 }
