@@ -1,6 +1,7 @@
 package com.github.gilton.VivaRecife.controllers;
 
 import com.github.gilton.VivaRecife.dto.RespostaSolicitacao;
+import com.github.gilton.VivaRecife.infra.VerificadorAcesso;
 import com.github.gilton.VivaRecife.services.ServicoComunicacao;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,9 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class ControladorComunicacao {
 
     private final ServicoComunicacao servicoComunicacao;
+    private final VerificadorAcesso verificadorAcesso;
 
-    public ControladorComunicacao(ServicoComunicacao servicoComunicacao) {
+    public ControladorComunicacao(ServicoComunicacao servicoComunicacao, VerificadorAcesso verificadorAcesso) {
         this.servicoComunicacao = servicoComunicacao;
+        this.verificadorAcesso = verificadorAcesso;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -32,6 +35,7 @@ public class ControladorComunicacao {
             @RequestParam("tipoProblema") String tipoProblema,
             @RequestPart(value = "foto", required = false) MultipartFile foto
     ) {
+        verificadorAcesso.verificarAcessoUsuario();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(servicoComunicacao.criar(titulo, localizacao, latitude, longitude, detalhamentoProblema, tipoProblema, foto));
     }

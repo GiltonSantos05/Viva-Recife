@@ -1,5 +1,6 @@
 package com.github.gilton.VivaRecife.services;
 
+import com.github.gilton.VivaRecife.exceptions.ExcecaoArmazenamentoFoto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,7 +37,7 @@ public class ServicoArmazenamentoFoto {
 
             return diretorio.resolve(nomeArquivo).toString();
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao salvar a foto localmente.", e);
+            throw new ExcecaoArmazenamentoFoto(e);
         }
     }
 }

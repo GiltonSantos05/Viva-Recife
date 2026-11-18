@@ -1,7 +1,7 @@
 package com.github.gilton.VivaRecife.dto;
 
-import com.github.gilton.VivaRecife.entity.StatusSolicitacao;
-import com.github.gilton.VivaRecife.entity.TipoProblema;
+import com.github.gilton.VivaRecife.entity.enums.StatusSolicitacao;
+import com.github.gilton.VivaRecife.entity.enums.TipoProblema;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

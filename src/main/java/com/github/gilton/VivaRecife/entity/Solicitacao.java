@@ -1,5 +1,6 @@
 package com.github.gilton.VivaRecife.entity;
 
+import com.github.gilton.VivaRecife.entity.enums.StatusSolicitacao;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

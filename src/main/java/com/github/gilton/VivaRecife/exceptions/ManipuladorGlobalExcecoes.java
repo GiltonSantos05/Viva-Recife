@@ -3,6 +3,8 @@ package com.github.gilton.VivaRecife.exceptions;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -13,26 +15,53 @@ public class ManipuladorGlobalExcecoes {
 
     @ExceptionHandler(ExcecaoSolicitacaoNaoEncontrada.class)
     public ResponseEntity<ErroPadrao> tratarSolicitacaoNaoEncontrada(ExcecaoSolicitacaoNaoEncontrada ex, HttpServletRequest requisicao) {
-        ErroPadrao erro = new ErroPadrao(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Recurso não encontrado",
-                ex.getMessage(),
-                requisicao.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+        return responder(HttpStatus.NOT_FOUND, "Recurso não encontrado", ex.getMessage(), requisicao);
+    }
+
+    @ExceptionHandler(ExcecaoUsuarioNaoEncontrado.class)
+    public ResponseEntity<ErroPadrao> tratarUsuarioNaoEncontrado(ExcecaoUsuarioNaoEncontrado ex, HttpServletRequest requisicao) {
+        return responder(HttpStatus.NOT_FOUND, "Recurso não encontrado", ex.getMessage(), requisicao);
+    }
+
+    @ExceptionHandler(ExcecaoUsuarioNaoAutenticado.class)
+    public ResponseEntity<ErroPadrao> tratarUsuarioNaoAutenticado(ExcecaoUsuarioNaoAutenticado ex, HttpServletRequest requisicao) {
+        return responder(HttpStatus.UNAUTHORIZED, "Não autenticado", ex.getMessage(), requisicao);
+    }
+
+    @ExceptionHandler({ExcecaoTokenInvalido.class, ExcecaoSenhaIncorreta.class, AuthenticationException.class})
+    public ResponseEntity<ErroPadrao> tratarCredenciaisInvalidas(RuntimeException ex, HttpServletRequest requisicao) {
+        String mensagem = ex.getMessage() != null && !ex.getMessage().isBlank()
+                ? ex.getMessage()
+                : new ExcecaoUsuarioNaoAutenticado().getMessage();
+        return responder(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", mensagem, requisicao);
+    }
+
+    @ExceptionHandler({ExcecaoPermissaoNegada.class, AccessDeniedException.class})
+    public ResponseEntity<ErroPadrao> tratarPermissaoNegada(RuntimeException ex, HttpServletRequest requisicao) {
+        String mensagem = ex.getMessage() != null && !ex.getMessage().isBlank()
+                ? ex.getMessage()
+                : new ExcecaoPermissaoNegada().getMessage();
+        return responder(HttpStatus.FORBIDDEN, "Acesso negado", mensagem, requisicao);
+    }
+
+    @ExceptionHandler(ExcecaoEmailJaCadastrado.class)
+    public ResponseEntity<ErroPadrao> tratarEmailJaCadastrado(ExcecaoEmailJaCadastrado ex, HttpServletRequest requisicao) {
+        return responder(HttpStatus.CONFLICT, "Conflito", ex.getMessage(), requisicao);
+    }
+
+    @ExceptionHandler(ExcecaoSenhasDiferentes.class)
+    public ResponseEntity<ErroPadrao> tratarSenhasDiferentes(ExcecaoSenhasDiferentes ex, HttpServletRequest requisicao) {
+        return responder(HttpStatus.BAD_REQUEST, "Requisição inválida", ex.getMessage(), requisicao);
+    }
+
+    @ExceptionHandler({ExcecaoGeracaoToken.class, ExcecaoArmazenamentoFoto.class})
+    public ResponseEntity<ErroPadrao> tratarFalhaInterna(RuntimeException ex, HttpServletRequest requisicao) {
+        return responder(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor", ex.getMessage(), requisicao);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErroPadrao> tratarArgumentoInvalido(IllegalArgumentException ex, HttpServletRequest requisicao) {
-        ErroPadrao erro = new ErroPadrao(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Requisição inválida",
-                ex.getMessage(),
-                requisicao.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erro);
+        return responder(HttpStatus.BAD_REQUEST, "Requisição inválida", ex.getMessage(), requisicao);
     }
 
     @ExceptionHandler(Exception.class)
@@ -40,23 +69,17 @@ public class ManipuladorGlobalExcecoes {
         String mensagem = ex.getMessage() != null && !ex.getMessage().isBlank()
                 ? ex.getMessage()
                 : "Ocorreu um erro inesperado. Tente novamente mais tarde.";
+        return responder(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno do servidor", mensagem, requisicao);
+    }
 
-        ErroPadrao erro = new ErroPadrao(
+    private ResponseEntity<ErroPadrao> responder(HttpStatus status, String erro, String mensagem, HttpServletRequest requisicao) {
+        ErroPadrao resposta = new ErroPadrao(
                 LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Erro interno do servidor",
+                status.value(),
+                erro,
                 mensagem,
                 requisicao.getRequestURI()
         );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(erro);
-    }
-
-    public record ErroPadrao(
-            LocalDateTime momento,
-            int status,
-            String erro,
-            String mensagem,
-            String caminho
-    ) {
+        return ResponseEntity.status(status).body(resposta);
     }
 }

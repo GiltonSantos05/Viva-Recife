@@ -1,4 +1,4 @@
-package com.github.gilton.VivaRecife.entity;
+package com.github.gilton.VivaRecife.entity.enums;
 
 public enum TipoProblema {
     ILUMINACAO("Iluminação"),
