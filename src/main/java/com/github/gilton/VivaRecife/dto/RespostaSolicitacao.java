@@ -17,7 +17,10 @@ public record RespostaSolicitacao(
         TipoProblema tipoProblema,
         String caminhoFoto,
         StatusSolicitacao status,
+        TipoProblema setorResponsavel,
         LocalDateTime criadoEm,
-        LocalDateTime atualizadoEm
+        LocalDateTime atualizadoEm,
+        UUID solicitanteId,
+        String nomeSolicitante
 ) {
 }

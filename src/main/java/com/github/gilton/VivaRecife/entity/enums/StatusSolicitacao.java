@@ -3,9 +3,9 @@ package com.github.gilton.VivaRecife.entity.enums;
 public enum StatusSolicitacao {
     RECEBIDA("Recebida"),
     EM_ANALISE("Em análise"),
-    EM_ANDAMENTO("Em andamento"),
-    CONCLUIDA("Concluída"),
-    CANCELADA("Cancelada");
+    ENCAMINHADA("Encaminhada"),
+    CANCELADA("Cancelada"),
+    RESOLVIDA("Resolvida");
 
     private final String descricao;
 

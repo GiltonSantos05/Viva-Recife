@@ -7,6 +7,8 @@ import com.github.gilton.VivaRecife.entity.enums.StatusSolicitacao;
 import com.github.gilton.VivaRecife.entity.enums.TipoProblema;
 import com.github.gilton.VivaRecife.repositories.RepositorioComunicacao;
 import com.github.gilton.VivaRecife.repositories.RepositorioSolicitacao;
+import com.github.gilton.VivaRecife.utils.AuthUtil;
+import com.github.gilton.VivaRecife.utils.RespostaSolicitacaoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,13 +21,16 @@ public class ServicoComunicacao {
     private final RepositorioComunicacao repositorioComunicacao;
     private final RepositorioSolicitacao repositorioSolicitacao;
     private final ServicoArmazenamentoFoto servicoArmazenamentoFoto;
+    private final AuthUtil authUtil;
 
     public ServicoComunicacao(RepositorioComunicacao repositorioComunicacao,
                               RepositorioSolicitacao repositorioSolicitacao,
-                              ServicoArmazenamentoFoto servicoArmazenamentoFoto) {
+                              ServicoArmazenamentoFoto servicoArmazenamentoFoto,
+                              AuthUtil authUtil) {
         this.repositorioComunicacao = repositorioComunicacao;
         this.repositorioSolicitacao = repositorioSolicitacao;
         this.servicoArmazenamentoFoto = servicoArmazenamentoFoto;
+        this.authUtil = authUtil;
     }
 
     @Transactional
@@ -39,10 +44,14 @@ public class ServicoComunicacao {
         Comunicacao comunicacao = new Comunicacao(titulo, localizacao, lat, lng, detalhamentoProblema, tipo, caminhoFoto);
         Comunicacao comunicacaoSalva = repositorioComunicacao.save(comunicacao);
 
-        Solicitacao solicitacao = new Solicitacao(comunicacaoSalva, StatusSolicitacao.RECEBIDA);
+        Solicitacao solicitacao = new Solicitacao(
+                comunicacaoSalva,
+                StatusSolicitacao.RECEBIDA,
+                authUtil.getUserLoggedIn()
+        );
         Solicitacao solicitacaoSalva = repositorioSolicitacao.save(solicitacao);
 
-        return paraResposta(solicitacaoSalva);
+        return RespostaSolicitacaoMapper.paraResposta(solicitacaoSalva);
     }
 
     private void validarCamposObrigatorios(String titulo, String localizacao, String detalhamentoProblema) {
@@ -82,23 +91,5 @@ public class ServicoComunicacao {
             String valoresAceitos = String.join(", ", Arrays.stream(TipoProblema.values()).map(Enum::name).toList());
             throw new IllegalArgumentException("Tipo do problema inválido. Valores aceitos: " + valoresAceitos + ".");
         }
-    }
-
-    private RespostaSolicitacao paraResposta(Solicitacao solicitacao) {
-        Comunicacao comunicacao = solicitacao.getComunicacao();
-        return new RespostaSolicitacao(
-                solicitacao.getId(),
-                comunicacao.getId(),
-                comunicacao.getTitulo(),
-                comunicacao.getLocalizacao(),
-                comunicacao.getLatitude(),
-                comunicacao.getLongitude(),
-                comunicacao.getDetalhamentoProblema(),
-                comunicacao.getTipoProblema(),
-                comunicacao.getCaminhoFoto(),
-                solicitacao.getStatus(),
-                solicitacao.getCriadoEm(),
-                solicitacao.getAtualizadoEm()
-        );
     }
 }

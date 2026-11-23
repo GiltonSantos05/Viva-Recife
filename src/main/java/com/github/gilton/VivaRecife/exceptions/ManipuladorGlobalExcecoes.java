@@ -30,7 +30,8 @@ public class ManipuladorGlobalExcecoes {
 
     @ExceptionHandler({ExcecaoTokenInvalido.class, ExcecaoSenhaIncorreta.class, AuthenticationException.class})
     public ResponseEntity<ErroPadrao> tratarCredenciaisInvalidas(RuntimeException ex, HttpServletRequest requisicao) {
-        String mensagem = ex.getMessage() != null && !ex.getMessage().isBlank()
+        // Exceções do Spring têm mensagem em inglês; usamos a nossa quando for o caso.
+        String mensagem = ex instanceof ExcecaoTokenInvalido || ex instanceof ExcecaoSenhaIncorreta
                 ? ex.getMessage()
                 : new ExcecaoUsuarioNaoAutenticado().getMessage();
         return responder(HttpStatus.UNAUTHORIZED, "Credenciais inválidas", mensagem, requisicao);
@@ -38,7 +39,7 @@ public class ManipuladorGlobalExcecoes {
 
     @ExceptionHandler({ExcecaoPermissaoNegada.class, AccessDeniedException.class})
     public ResponseEntity<ErroPadrao> tratarPermissaoNegada(RuntimeException ex, HttpServletRequest requisicao) {
-        String mensagem = ex.getMessage() != null && !ex.getMessage().isBlank()
+        String mensagem = ex instanceof ExcecaoPermissaoNegada
                 ? ex.getMessage()
                 : new ExcecaoPermissaoNegada().getMessage();
         return responder(HttpStatus.FORBIDDEN, "Acesso negado", mensagem, requisicao);
@@ -49,8 +50,8 @@ public class ManipuladorGlobalExcecoes {
         return responder(HttpStatus.CONFLICT, "Conflito", ex.getMessage(), requisicao);
     }
 
-    @ExceptionHandler(ExcecaoSenhasDiferentes.class)
-    public ResponseEntity<ErroPadrao> tratarSenhasDiferentes(ExcecaoSenhasDiferentes ex, HttpServletRequest requisicao) {
+    @ExceptionHandler({ExcecaoSenhasDiferentes.class, ExcecaoStatusInvalido.class, ExcecaoSetorInvalido.class})
+    public ResponseEntity<ErroPadrao> tratarDadosInvalidos(RuntimeException ex, HttpServletRequest requisicao) {
         return responder(HttpStatus.BAD_REQUEST, "Requisição inválida", ex.getMessage(), requisicao);
     }
 

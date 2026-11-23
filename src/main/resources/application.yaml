@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -20,8 +20,8 @@ spring:
       token:
         secret: ${JWT_SECRET:secret-qdop}
 
-  app:
-    admin:
-      password: ${INITIAL_ADMIN_PASSWORD:senha123!}
-      email: ${INITIAL_ADMIN_EMAIL:admin@wilson.com}
+app:
+  admin:
+    password: ${INITIAL_ADMIN_PASSWORD:senha123!}
+    email: ${INITIAL_ADMIN_EMAIL:gilton@gmail.com}
 
